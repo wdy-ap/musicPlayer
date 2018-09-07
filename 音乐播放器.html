@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>音乐播放器</title>
+        <style>
+               .hover {
+                   cursor:pointer;
+               }
+               .container {
+                   position: relative;
+                   display: inline-block;
+               }
+
+               .playlist-container {
+                   width: 880px;
+                   height: 300px;
+                   position: absolute;
+                   bottom: 260px;
+                   left: 10px;
+                   background: black;
+                   opacity: 0.3;
+               }
+
+               .playlist {
+                   width: 880px;
+                   height: 180px;
+                   position: absolute;
+                   bottom: 80px;
+                   left: 0;
+                   color: white;
+               }
+
+               .playlist-then {
+                   width: 880px;
+                   height: 180px;
+               }
+
+               .playlist-like {
+                   display: inline-block;
+                   width: 150px;
+                   font-size: 25px;
+                   text-align: center;
+                   color: red;
+               }
+
+               .playlist-song-name {
+                   display: inline-block;
+                   width: 150px;
+               }
+
+               .playlist-song-singer {
+                   display: inline-block;
+                   width: 200px;
+               }
+
+               .playlist-song-album {
+                   display: inline-block;
+                   width: 250px;
+               }
+
+               .content-container{
+                   width: 600px;
+                   height: 200px;
+                   position: absolute;
+                   bottom: 60px;
+                   left: 10px;
+               }
+
+                .cover-pic {
+                   position: absolute;
+                   top: 50%;
+                   transform: translateY(-50%);
+                   left: 100px;
+               }
+
+               .during-play {
+                   top: 25% !important;
+                   animation: 5s rotation infinite;
+                   animation-timing-function: linear;
+               }
+
+               @keyframes rotation {
+                   0% {
+                       transform: rotate(0deg);
+                   }
+                   100% {
+                       transform: rotate(360deg);
+                   }
+               }
+
+               .info-container {
+                   position: absolute;
+                   top: 50%;
+                   transform: translateY(-50%);
+                   left: 250px;
+               }
+
+               .song-name {
+                   font-size: 20px;
+                   font-family:"微软雅黑";
+                   font-weight:bold;
+               }
+
+               .audio {
+                   width: 600px;
+                   position: absolute;
+                   bottom: 10px;
+                   left: 10px;
+               }
+
+               .audio-control {
+                   width: 200px;
+                   height: 54px;
+                   position: absolute;
+                   bottom: 10px;
+                   right: 50px;
+               }
+
+               .control {
+                   position: absolute;
+                   top: 50%;
+                   transform: translateY(-50%);
+               }
+
+               #id-previous {
+                   left: 10px;
+               }
+
+               #id-next {
+                   left: 80px;
+               }
+
+               .change {
+                   left: 150px;
+               }
+
+               .control1 {
+                   display: none;
+               }
+
+               .active {
+                   display: inline-block;
+               }
+
+               .unlike {
+                   color: gray !important;
+               }
+
+               .white {
+                   background: white !important;
+                   color:black !important;
+               }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <img src='./pics/xg.jpg'>
+            <div class='playlist-container'>
+                <div class='playlist'>
+                    <div class='playlist-line white' id='id-song-0'>
+                        <span class='playlist-like'>❤</span>
+                        <span class='playlist-song-name'>장가갈 수 있을까</span>
+                        <span class='playlist-song-singer'>咖啡少年</span>
+                        <span class='playlist-song-album'>커피소년 첫번째 음악 로스팅</span>
+                    </div>
+                    <div class='playlist-line' id='id-song-1'>
+                        <span class='playlist-like'>❤</span>
+                        <span class='playlist-song-name'>回到中学的暑假</span>
+                        <span class='playlist-song-singer'>my little airport</span>
+                        <span class='playlist-song-album'>Lonely Friday</span>
+                    </div>
+                    <div class='playlist-line' id='id-song-2'>
+                        <span class='playlist-like'>❤</span>
+                        <span class='playlist-song-name'>自己</span>
+                        <span class='playlist-song-singer'>黄伊汶</span>
+                        <span class='playlist-song-album'>The Groove In Me</span>
+                    </div>
+                    <div class='playlist-line' id='id-song-3'>
+                        <span class='playlist-like'>❤</span>
+                        <span class='playlist-song-name'>Silver City</span>
+                        <span class='playlist-song-singer'>Myrne; Linying</span>
+                        <span class='playlist-song-album'>Silver City / Release Me</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class='content-container'>
+                <img src='./pics/cover/0.png' class='cover-pic'>
+                <div class='info-container'>
+                    <div class='song-name'>장가갈 수 있을까</div></br>
+                    <div class='song-singer'>&nbsp·&nbsp咖啡少年</div></br>
+                    <div class='song-album'>&nbsp·&nbsp커피소년 첫번째 음악 로스팅</div>
+                </div>
+            </div>
+            <audio src='./mp3s/0.mp3' class='audio' controls="controls" data-index='0'></audio>
+            <div class='audio-control'>
+                <img src='./pics/图标/previoussong.png' class='control control2' id='id-previous' data-index='-1'>
+                <img src='./pics/图标/nextsong.png' class='control control2' id='id-next' data-index='1'>
+                <div class='change control' data-index='0'>
+                    <img src='./pics/图标/singlesong.png' class='control1 active' id='id-0'>
+                    <img src='./pics/图标/circle.png' class='control1' id='id-1'>
+                    <img src='./pics/图标/random.png' class='control1' id='id-2'>
+                </div>
+            </div>
+        </div>
+            <script src='音乐播放器.js'></script>
+    </body>
+</html>
