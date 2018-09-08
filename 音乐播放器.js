@@ -1,226 +1,172 @@
 var log = console.log.bind(console)
+var e = selector => document.querySelector(selector)
+var es = selector => document.querySelectorAll(selector)
 
-var e = function(selector) {
-    var element = document.querySelector(selector)
-    if (element == null) {
-        var s = `元素没找到，选择器 ${selector} 没有找到或者 js 没有放在 body 里`
-        alert(s)
-    } else {
-        return element
+var audio = e('audio')
+
+var templateEachsong = (song) => {
+    return `
+    <div class='eachsong' id='id-song-${song[0]}'>
+        <span class='eachsong-like'>❤</span>
+        <span class='eachsong-name'>${song[1]}</span>
+        <span class='eachsong-singer'>${song[2]}</span>
+        <span class='eachsong-album'>${song[3]}</span>
+    </div>
+    `
+}
+
+var renderEachsong = function() {
+    var playlist = e('.playlist')
+    var arg = arguments[0]
+    for (var i = 0; i < arg.length; i++) {
+        var eachsong = templateEachsong(arg[i])
+        playlist.insertAdjacentHTML('beforeend', eachsong)
     }
 }
 
-var es = function(selector) {
-    var elements = document.querySelectorAll(selector)
-    if (elements.length == 0) {
-        var s = `元素没找到，选择器 ${selector} 没有找到或者 js 没有放在 body 里`
-        alert(s)
-    } else {
-        return elements
+// 点击模式按钮切换图标
+var modeButtonChange = () => {
+    var modeButton = e('.modeButton')
+    modeButton.addEventListener('click', () => {
+        var index = Number(modeButton.dataset.index)
+        var newIndex = (index + 1) % 3
+        var newSrc = `./pics/图标/${newIndex}.png`
+        modeButton.setAttribute('src', newSrc)
+        modeButton.dataset.index = newIndex
+    })
+}
+
+// 当前播放歌曲的信息
+var infoSwitch = (index, songs) => {
+    var infoPic = e('.info-pic')
+    var src = `./pics/cover/${index}.png`
+    infoPic.setAttribute('src', src)
+
+    var songName = e('.song-name')
+    var songSinger = e('.song-singer')
+    var songAlbum = e('.song-album')
+    songName.innerHTML = songs[index][1]
+    songSinger.innerHTML = songs[index][2]
+    songAlbum.innerHTML = songs[index][3]
+}
+
+// 歌曲被切换时，播放列表高亮的切换
+var playlistSwitch = (index) => {
+    var eachsongs = es('.eachsong')
+    for (var i = 0; i < eachsongs.length; i++) {
+        eachsongs[i].classList.remove('highlight')
     }
+    eachsongs[index].classList.add('highlight')
 }
 
-var songNames = {
-    0: '장가갈 수 있을까',
-    1: '回到中学的暑假',
-    2: '自己',
-    3: 'Silver City',
-}
-
-var songSingers = {
-    0: '&nbsp·&nbsp咖啡少年',
-    1: '&nbsp·&nbspmy little airport',
-    2: '&nbsp·&nbsp黄伊汶',
-    3: '&nbsp·&nbspMyrne; Linying',
-}
-
-var songAlbums = {
-    0: '&nbsp·&nbsp커피소년 첫번째 음악 로스팅',
-    1: '&nbsp·&nbspLonely Friday',
-    2: '&nbsp·&nbspThe Groove In Me',
-    3: '&nbsp·&nbspSilver City / Release Me'
-}
-
-var controlFind = (index) => {
-    var index = (index + 1) % 3
-    var id = `#id-${index}`
-    return e(id)
-}
-
-var clearPicActive = () => {
-    var control1s = es('.control1')
-    for (var i = 0; i < 3; i++) {
-        control1s[i].classList.remove('active')
-    }
-}
-
-var changeNumber = (index, num) => (index + num + 4) % 4
-
-var singleMode = () => {
-    var audio = e('audio')
-    audio.load()
+// 歌曲被切换时，整个页面（包括歌曲src、当前播放歌曲信息、播放列表高亮）的切换、播放、专辑封面图旋转
+var entireSwitch = function(index, songs) {
+    var src =`./mp3s/${index}.mp3`
+    audio.setAttribute('src', src)
+    infoSwitch(index, songs)
+    playlistSwitch(index)
     audio.play()
+    var infoPic = e('.info-pic')
+    infoPic.classList.add('playing')
 }
 
-var circleMode = () => {
-    var audio = e('audio')
-    var index = Number(audio.dataset.index)
-    var indexNew = changeNumber(index, 1)
-    audio.src = `./mp3s/${indexNew}.mp3`
-    audio.play()
-    audio.dataset.index = indexNew
+// 传入序号，结合当前歌曲序号执行播放
+var playCallback = (buttonIndex, songs) => {
+    var audioIndex = Number(audio.dataset.index)
+    var index = (audioIndex + buttonIndex + 4) % 4
+    entireSwitch(index, songs)
+    audio.dataset.index = index
 }
 
-var randomMode = () => {
-    var audio = e('audio')
-    var indexNew = Math.floor(Math.random() * 4)
-    audio.src = `./mp3s/${indexNew}.mp3`
-    audio.play()
-    audio.dataset.index = indexNew
+// 检查模式按钮的情况（单曲or循环or随机）
+var checkMode = () => {
+    var modeButton = e('.modeButton')
+    var index = Number(modeButton.dataset.index)
+    return index
 }
 
-var songChoose = () => {
-    var chosenSongs = es('.playlist-line')
-    for (var i = 0; i < 4; i++) {
-        chosenSongs[i].addEventListener('mouseover', function() {
-            var self = event.target
-            self.classList.add('hover')
-        })
-        chosenSongs[i].addEventListener('dblclick', function() {
-            var self = event.target
-            var id = self.parentElement.id
-            var index = id.slice(-1)
-            var audio = e('audio')
-            audio.src = `./mp3s/${index}.mp3`
-            audio.dataset.index = index
-            audio.play()
-        })
-    }
-}
-
-var preLast = () => {
-    var prenLast = es('.control2')
-    for (var i = 0; i < 2; i++) {
-        prenLast[i].addEventListener('click', function() {
-            var changeButton = e('.change')
-            var index = Number(changeButton.dataset.index)
-            if (index === 0) {
-                singleMode()
-            } else if(index === 1) {
-                circleMode()
-            } else if (index === 2) {
-                randomMode()
+// 绑定上一首或下一首事件
+var bindSwitches = (songs) => {
+    var switches = es('.switchButton')
+    for (var i = 0; i < switches.length; i++) {
+        switches[i].addEventListener('click', () => {
+            if (checkMode() === 0 || checkMode() === 1) {
+                var self = event.target
+                var buttonIndex = Number(self.dataset.index)
+                playCallback(buttonIndex, songs)
+            } else if (checkMode() === 2) {
+                var buttonIndex = Math.floor(Math.random() * 4)
+                playCallback(buttonIndex, songs)
             }
         })
     }
 }
 
-var change = () => {
-    var changeButton = e('.change')
-    changeButton.addEventListener('click', function() {
+// 绑定ended事件
+var bindEnded = (songs) => {
+    audio.addEventListener('ended', () => {
+        if (checkMode() === 0) {
+            audio.play()
+        } else if (checkMode() === 1) {
+            playCallback(1, songs)
+        } else if (checkMode() === 2) {
+            var buttonIndex = Math.floor(Math.random() * 4)
+            playCallback(buttonIndex, songs)
+        }
+    })
+}
+
+// 绑定播放列表双击事件
+var bindClickPlaylist = (songs) => {
+    var playList = e('.playlist')
+    playList.addEventListener('dblclick', () => {
         var self = event.target
-        if (self.classList.contains('control1')) {
-            clearPicActive()
-            var index = Number(changeButton.dataset.index)
-            controlFind(index).classList.add('active')
-            var index = (index + 1 + 3) % 3
-            changeButton.dataset.index = index
-        }
+        var div = self.closest('div')
+        var index = Number(div.id.slice(-1))
+        entireSwitch(index, songs)
+        audio.dataset.index = index
     })
 }
 
-var changeMode = () => {
-    var audio = e('audio')
-    audio.addEventListener('ended', function() {
-        var changeButton = e('.change')
-        var n = Number(changeButton.dataset.index)
-        if (n === 1) {
-            circleMode()
-        } else if (n === 2) {
-            randomMode()
-        } else if (n === 0) {
-            singleMode()
-        }
-    })
-}
-
-var playlistChange = () => {
-    var audio = e('audio')
-    var n = Number(audio.dataset.index)
-    var playList = e(`#id-song-${n}`)
-    var playLists = es('.playlist-line')
-    for (var i = 0; i < 4; i++) {
-        playLists[i].classList.remove('white')
-    }
-    playList.classList.toggle('white')
-}
-
-var songChange = () => {
-    var audio = e('audio')
-    var songName = e('.song-name')
-    var songSinger = e('.song-singer')
-    var coverPic = e('.cover-pic')
-    var songAlbum = e('.song-album')
-    var changeButton = e('.change')
-    var n = Number(audio.dataset.index)
-    songName.innerHTML = songNames[n]
-    songSinger.innerHTML = songSingers[n]
-    songAlbum.innerHTML = songAlbums[n]
-    coverPic.src = `./pics/cover/${n}.png`
-}
-
-var changeContent = () => {
-    var audio = e('audio')
-    audio.addEventListener('ended', function() {
-        songChange()
-        playlistChange()
-    })
-    var controlButtons = es('.control')
-    for (var i = 0; i < 3; i++) {
-        controlButtons[i].addEventListener('click', function() {
-            songChange()
-            playlistChange()
-        })
-    }
-    var chosenSongs = es('.playlist-line')
-    for (var i = 0; i < 4; i++) {
-        chosenSongs[i].addEventListener('dblclick', function() {
-            songChange()
-            playlistChange()
+// 绑定“鼠标移入变手势”事件
+var bindMouseover = () => {
+    var eachsongs = es('.eachsong')
+    for (var i = 0; i < eachsongs.length; i++) {
+        eachsongs[i].addEventListener('mouseover', () => {
+            var self = event.target
+            self.classList.add('pointer')
         })
     }
 }
 
-var duringPlay = () => {
-    var audio = e('audio')
-    audio.addEventListener('play', function() {
-        var coverPic = e('.cover-pic')
-        coverPic.classList.add('during-play')
-    })
-    audio.addEventListener('pause', function() {
-        var coverPic = e('.cover-pic')
-        coverPic.classList.remove('during-play')
-    })
-}
-
-var changeLike = () => {
-    var playLikes = es('.playlist-like')
-    for (var i = 0; i < 4; i++) {
-        playLikes[i].addEventListener('click', function() {
+// 绑定点击爱心事件
+var bindLike = () => {
+    var likes = es('.eachsong-like')
+    for (var i = 0; i < likes.length; i++) {
+        likes[i].addEventListener('click', () => {
             var self = event.target
             self.classList.toggle('unlike')
         })
     }
 }
 
-var __main = () => {
-    songChoose()
-    preLast()
-    change()
-    changeMode()
-    changeContent()
-    duringPlay()
-    changeLike()
+var binds = (songs) => {
+    bindSwitches(songs)
+    bindEnded(songs)
+    bindClickPlaylist(songs)
+    bindMouseover()
+    bindLike()
 }
 
-__main()
+var _main = () => {
+    var song0 = [0, '장가갈 수 있을까', '咖啡少年', '커피소년 첫번째 음악 로스팅']
+    var song1 = [1, '回到中学的暑假', 'my little airport', 'Lonely Friday']
+    var song2 = [2, '自己', '黄伊汶', 'The Groove In Me']
+    var song3 = [3, 'Silver City', 'Myrne; Linying', 'Silver City / Release Me']
+    var songs = [song0, song1, song2, song3]
+    modeButtonChange()
+    renderEachsong(songs.slice(1))
+    binds(songs)
+}
+
+_main()
